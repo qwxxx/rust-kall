@@ -105,7 +105,7 @@ func (s *Store) GetScore(name string, blocked bool, stake float64) int {
 	if ok {
 		return sc
 	} else {
-		if stake >= 50.0 {
+		if stake >= 80.0 {
 			s.addLineToUnknownNames(name)
 		}
 
