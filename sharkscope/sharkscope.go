@@ -1,6 +1,7 @@
 package sharkscope
 
 import (
+	"SharkScopeParser/config"
 	"SharkScopeParser/global"
 	"crypto/md5"
 	"encoding/hex"
@@ -16,9 +17,9 @@ type TournamentInfo struct {
 	Stake   float64
 }
 
-const appname string = ``
-const password string = ``
-const appkey string = ``
+var appname string = config.Cfg.AppName
+var password string = config.Cfg.Password
+var appkey string = config.Cfg.AppKey
 
 func request(url string) ([]byte, error) {
 
