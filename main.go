@@ -41,6 +41,7 @@ func main() {
 	api.GET("/tournament", h.CalculateTournament)
 	api.GET("/player", h.CalculatePlayer)
 	api.GET("/state", h.CalculatePlayer)
+	api.GET("/restart", h.Restart)
 
 	e.StaticFile("/", "./frontend/dist/index.html")
 	e.Static("/static", "./frontend/dist/")

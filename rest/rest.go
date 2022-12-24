@@ -9,7 +9,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"os/exec"
 	"strconv"
 	"time"
 
@@ -339,6 +341,20 @@ func (h *API) LoadConfig(c *gin.Context) {
 	}
 	c.Status(http.StatusCreated)
 }
-func (h *API) State(c *gin.Context) {
-	c.JSON(200, map[string]interface{}{"isPlayerCalculateRunning": h.isPlayerCalculateRunning})
+func (h *API) Restart(c *gin.Context) {
+	password := c.Query("password")
+	if password != global.AdminPassword {
+		c.Status(401)
+		return
+	}
+
+	cmd := exec.Command("./restart")
+
+	err := cmd.Start()
+	if err != nil {
+		fmt.Println(err)
+		c.Status(500)
+	}
+	location := url.URL{Path: "/"}
+	c.Redirect(http.StatusFound, location.RequestURI())
 }
