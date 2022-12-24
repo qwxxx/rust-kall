@@ -4,8 +4,9 @@ import (
 	"SharkScopeParser/discord"
 	"SharkScopeParser/rest"
 	"SharkScopeParser/store"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -47,6 +48,7 @@ func main() {
 	e.Static("/assets", "./frontend/dist/assets")
 	e.Static("/files", "./files")
 
+	go ds.SendImportant()
 	go h.AutoFindActiveTournaments()
 	e.Run(":8081")
 }

@@ -3,10 +3,12 @@ package discord
 import (
 	"SharkScopeParser/global"
 	"fmt"
+	"time"
+
 	"github.com/bwmarrin/discordgo"
 )
 
-// var channelID string = `1008079845441409045`
+var ImportantChannelID string = ``
 var channelID string = `1051584641158631424`
 var token string = ``
 
@@ -27,9 +29,13 @@ func (c *Discord) SendTest() {
 
 }
 func (c *Discord) SendReplyWithUpdated(messageID string, response global.CalculateTournamentResponse) {
-	text := fmt.Sprintf("Итоговая оценка: %d\n\n", response.TotalScore)
-	for _, v := range response.Players {
-		text += fmt.Sprintf("%s: %d\n", v.Name, v.Score)
+	text := fmt.Sprintf("Итоговая оценка турнира %v: %d\n\n", response.Id, response.TotalScore)
+	for i, v := range response.Players {
+		if i == 0 || i == 1 {
+			text += fmt.Sprintf("Место %v (ITM) - Player: %s\n", i+1, v.Name)
+		} else {
+			text += fmt.Sprintf("Место %v - Player: %s\n", i+1, v.Name)
+		}
 	}
 	m, err := c.session.MessageThreadStart(channelID, messageID, "Турнир закончен", 0)
 	if err != nil {
@@ -37,6 +43,14 @@ func (c *Discord) SendReplyWithUpdated(messageID string, response global.Calcula
 	}
 	c.session.ChannelMessageSend(m.ID, text)
 	fmt.Println(err)
+}
+func (c *Discord) SendImportant() {
+	lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
+	currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
+	if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 && int(time.Now().Weekday()) == 4 {
+		lastReportDateMsk = currentDateMsk
+		c.session.ChannelMessageSend(ImportantChannelID, "@everyone\nНапоминаю, вы автоматически зарегистрировались через билет 95$ в турнире (кто по еженедельном ЛБ на эту ступеньку попал)\nЕсли не планируете играть именно этот турнир - отрегистрируйтесь")
+	}
 }
 func (c *Discord) SendTournamentInfo(response global.CalculateTournamentResponse) string {
 	text := fmt.Sprintf(`Турнир: %d
