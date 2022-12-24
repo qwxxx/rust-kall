@@ -1,22 +1,30 @@
 package main
 
 import (
+	"SharkScopeParser/config"
 	"SharkScopeParser/discord"
 	"SharkScopeParser/rest"
 	"SharkScopeParser/store"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	var err error
+	config.Cfg, err = config.New()
+	if err != nil {
+		log.Fatalf("config new failed: %v", err)
+	}
+
 	d := store.NewStore()
 	ds, err := discord.Create()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	h := rest.API{
-		d,
-		&ds,
+		DB: d,
+		DS: &ds,
 	}
 	d.GetScore("", false, 0)
 	d.UpdateScores()
@@ -39,6 +47,8 @@ func main() {
 	api.POST("/unknownNames/clear", h.ClearUnknownNames)
 	api.GET("/tournament", h.CalculateTournament)
 	api.GET("/player", h.CalculatePlayer)
+	api.GET("/state", h.CalculatePlayer)
+	api.GET("/restart", h.Restart)
 
 	e.StaticFile("/", "./frontend/dist/index.html")
 	e.Static("/static", "./frontend/dist/")
