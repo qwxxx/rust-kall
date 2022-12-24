@@ -49,6 +49,7 @@ func main() {
 	e.Static("/files", "./files")
 
 	go ds.SendImportant()
+
 	go h.AutoFindActiveTournaments()
 	e.Run(":8081")
 }
