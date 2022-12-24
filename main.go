@@ -23,8 +23,8 @@ func main() {
 		log.Fatalln(err)
 	}
 	h := rest.API{
-		d,
-		&ds,
+		DB: d,
+		DS: &ds,
 	}
 	d.GetScore("", false, 0)
 	d.UpdateScores()
@@ -47,6 +47,8 @@ func main() {
 	api.POST("/unknownNames/clear", h.ClearUnknownNames)
 	api.GET("/tournament", h.CalculateTournament)
 	api.GET("/player", h.CalculatePlayer)
+	api.GET("/state", h.CalculatePlayer)
+	api.GET("/restart", h.Restart)
 
 	e.StaticFile("/", "./frontend/dist/index.html")
 	e.Static("/static", "./frontend/dist/")
