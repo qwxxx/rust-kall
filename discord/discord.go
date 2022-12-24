@@ -3,6 +3,7 @@ package discord
 import (
 	"SharkScopeParser/global"
 	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -27,9 +28,13 @@ func (c *Discord) SendTest() {
 
 }
 func (c *Discord) SendReplyWithUpdated(messageID string, response global.CalculateTournamentResponse) {
-	text := fmt.Sprintf("Итоговая оценка: %d\n\n", response.TotalScore)
-	for _, v := range response.Players {
-		text += fmt.Sprintf("%s: %d\n", v.Name, v.Score)
+	text := fmt.Sprintf("Итоговая оценка турнира %v: %d\n\n", response.Id, response.TotalScore)
+	for i, v := range response.Players {
+		if i == 0 || i == 1 {
+			text += fmt.Sprintf("Место %v (ITM) - Player: %s\n", i+1, v.Name)
+		} else {
+			text += fmt.Sprintf("Место %v - Player: %s\n", i+1, v.Name)
+		}
 	}
 	m, err := c.session.MessageThreadStart(channelID, messageID, "Турнир закончен", 0)
 	if err != nil {
