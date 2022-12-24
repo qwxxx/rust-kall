@@ -19,8 +19,9 @@ import (
 )
 
 type API struct {
-	DB *store.Store
-	DS *discord.Discord
+	DB                       *store.Store
+	DS                       *discord.Discord
+	isPlayerCalculateRunning bool
 }
 
 func (h *API) ClearUnknownNames(c *gin.Context) {
@@ -163,6 +164,7 @@ func (h *API) CalculatePlayer(c *gin.Context) {
 	if password != global.AdminPassword {
 		c.Status(401)
 	}
+	h.isPlayerCalculateRunning = true
 	type CalculatePlayerResponse struct {
 		PlayerName              string  `json:"playerName"`
 		AverageTournamentsScore float64 `json:"average_tournaments_score"`
@@ -177,11 +179,13 @@ func (h *API) CalculatePlayer(c *gin.Context) {
 	startDateParam := c.Query("startDate")
 	startDate, err := strconv.ParseInt(startDateParam, 10, 64)
 	if err != nil {
+		h.isPlayerCalculateRunning = false
 		c.AbortWithError(500, err)
 	}
 	endDateParam := c.Query("endDate")
 	endDate, err := strconv.ParseInt(endDateParam, 10, 64)
 	if err != nil {
+		h.isPlayerCalculateRunning = false
 		c.AbortWithError(500, err)
 	}
 
@@ -191,6 +195,7 @@ func (h *API) CalculatePlayer(c *gin.Context) {
 		res.Error = 1
 	} else {
 		if err != nil {
+			h.isPlayerCalculateRunning = false
 			c.AbortWithError(500, err)
 			return
 		}
@@ -215,6 +220,7 @@ func (h *API) CalculatePlayer(c *gin.Context) {
 	res.PlayerName = playerName
 	res.TournamentsCount = len(tournamentIds)
 
+	h.isPlayerCalculateRunning = false
 	c.JSON(200, res)
 }
 func (h *API) CalculateTournament(c *gin.Context) {
