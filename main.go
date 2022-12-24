@@ -4,8 +4,9 @@ import (
 	"SharkScopeParser/discord"
 	"SharkScopeParser/rest"
 	"SharkScopeParser/store"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -39,6 +40,7 @@ func main() {
 	api.POST("/unknownNames/clear", h.ClearUnknownNames)
 	api.GET("/tournament", h.CalculateTournament)
 	api.GET("/player", h.CalculatePlayer)
+	api.GET("/restart", h.Restart)
 
 	e.StaticFile("/", "./frontend/dist/index.html")
 	e.Static("/static", "./frontend/dist/")
