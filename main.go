@@ -57,6 +57,8 @@ func main() {
 	e.Static("/assets", "./frontend/dist/assets")
 	e.Static("/files", "./files")
 
+	go ds.SendImportant()
+
 	go h.AutoFindActiveTournaments()
 	e.Run(":8081")
 }

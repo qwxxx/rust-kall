@@ -4,11 +4,12 @@ import (
 	"SharkScopeParser/config"
 	"SharkScopeParser/global"
 	"fmt"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-// var channelID string = `1008079845441409045`
+var ImportantChannelID string = ``
 var channelID string = `1051584641158631424`
 var token string = config.Cfg.Token
 
@@ -43,6 +44,14 @@ func (c *Discord) SendReplyWithUpdated(messageID string, response global.Calcula
 	}
 	c.session.ChannelMessageSend(m.ID, text)
 	fmt.Println(err)
+}
+func (c *Discord) SendImportant() {
+	lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
+	currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
+	if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 && int(time.Now().Weekday()) == 4 {
+		lastReportDateMsk = currentDateMsk
+		c.session.ChannelMessageSend(ImportantChannelID, "@everyone\nНапоминаю, вы автоматически зарегистрировались через билет 95$ в турнире (кто по еженедельном ЛБ на эту ступеньку попал)\nЕсли не планируете играть именно этот турнир - отрегистрируйтесь")
+	}
 }
 func (c *Discord) SendTournamentInfo(response global.CalculateTournamentResponse) string {
 	text := fmt.Sprintf(`Турнир: %d
