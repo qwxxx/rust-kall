@@ -1,6 +1,7 @@
 package main
 
 import (
+	"SharkScopeParser/config"
 	"SharkScopeParser/discord"
 	"SharkScopeParser/rest"
 	"SharkScopeParser/store"
@@ -10,6 +11,12 @@ import (
 )
 
 func main() {
+	var err error
+	config.Cfg, err = config.New()
+	if err != nil {
+		log.Fatalf("config new failed: %v", err)
+	}
+
 	d := store.NewStore()
 	ds, err := discord.Create()
 	if err != nil {

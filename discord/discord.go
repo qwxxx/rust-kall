@@ -1,14 +1,16 @@
 package discord
 
 import (
+	"SharkScopeParser/config"
 	"SharkScopeParser/global"
 	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 )
 
 // var channelID string = `1008079845441409045`
 var channelID string = `1051584641158631424`
-var token string = ``
+var token string = config.Cfg.Token
 
 type Discord struct {
 	session *discordgo.Session
