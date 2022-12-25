@@ -48,6 +48,7 @@ func (c *Discord) SendReplyWithUpdated(messageID string, response global.Calcula
 func (c *Discord) SendImportant() {
 	lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
 	currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
+
 	if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 && int(time.Now().Weekday()) == 4 {
 		lastReportDateMsk = currentDateMsk
 		c.session.ChannelMessageSend(ImportantChannelID, ":robot: @everyone\nНапоминаю, вы автоматически зарегистрировались через билет 95$ в турнире (кто по еженедельном ЛБ на эту ступеньку попал)\nЕсли не планируете играть именно этот турнир - отрегистрируйтесь")
