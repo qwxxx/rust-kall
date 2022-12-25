@@ -47,7 +47,7 @@ func main() {
 	api.POST("/unknownNames/clear", h.ClearUnknownNames)
 	api.GET("/tournament", h.CalculateTournament)
 	api.GET("/player", h.CalculatePlayer)
-	api.GET("/state", h.CalculatePlayer)
+	api.GET("/state", h.State)
 	api.GET("/restart", h.Restart)
 
 	e.StaticFile("/", "./frontend/dist/index.html")
