@@ -202,3 +202,36 @@ func TournamentList(tournamentId string, network string) (TournamentInfo, error)
 	return ans, err
 
 }
+
+func GetInfo() (*global.MessageStat, error) {
+	js, err := request(`https://www.sharkscope.com/api/andreiiann/networks/Player%20Group/players/Edge%203%25?filter=Class:SNG&Currency=USD`)
+	if err != nil {
+		return nil, err
+	}
+	s := global.Stat{}
+	err = json.Unmarshal(js, &s)
+	if err != nil {
+		return nil, err
+	}
+
+	res := global.MessageStat{}
+	for _, m := range s.Response.PlayerResponse.PlayerView.PlayerGroup.Statistics.Statistic {
+		switch m.Id {
+		case "Count":
+			res.NumOfTournament, _ = strconv.Atoi(m.Num)
+		case "Profit":
+			res.Profit, _ = strconv.ParseFloat(m.Num, 64)
+		case "AvStake":
+			res.ABI, _ = strconv.ParseFloat(m.Num, 64)
+		case "TotalROI":
+			res.TotalROI, _ = strconv.ParseFloat(m.Num, 64)
+		case "AvROI":
+			res.AvgROI, _ = strconv.ParseFloat(m.Num, 64)
+		case "Rake":
+			res.Profit, _ = strconv.ParseFloat(m.Num, 64)
+
+		}
+	}
+
+	return &res, nil
+}

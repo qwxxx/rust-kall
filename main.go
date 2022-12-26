@@ -4,19 +4,22 @@ import (
 	"SharkScopeParser/config"
 	"SharkScopeParser/discord"
 	"SharkScopeParser/rest"
+	"SharkScopeParser/sharkscope"
 	"SharkScopeParser/store"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+
 	var err error
 	config.Cfg, err = config.New()
 	if err != nil {
 		log.Fatalf("config new failed: %v", err)
 	}
-
+	// fmt.Println(sharkscope.GetInfo())
 	d := store.NewStore()
 	ds, err := discord.Create()
 	if err != nil {
@@ -58,7 +61,30 @@ func main() {
 	e.Static("/files", "./files")
 
 	go ds.SendImportant()
+	go func() {
+		for {
 
+			lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
+			currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
+
+			if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 {
+				s, _ := sharkscope.GetInfo()
+				_, _, day := time.Now().Date()
+				if day == 1 {
+					lastReportDateMsk = currentDateMsk
+					ds.SendStat(s, "Месячный отчет")
+				} else if int(currentDateMsk.Weekday()) == 6 {
+					lastReportDateMsk = currentDateMsk
+					ds.SendStat(s, "Недельный отчет")
+				} else {
+					lastReportDateMsk = currentDateMsk
+					ds.SendStat(s, "Дневной отчет")
+				}
+
+			}
+		}
+
+	}()
 	go h.AutoFindActiveTournaments()
 	e.Run(":8081")
 }

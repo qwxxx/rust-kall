@@ -10,6 +10,7 @@ import (
 )
 
 var ImportantChannelID string = ``
+var StatChannelID string = ``
 var channelID string = `1051584641158631424`
 var token string = config.Cfg.Token
 
@@ -46,13 +47,16 @@ func (c *Discord) SendReplyWithUpdated(messageID string, response global.Calcula
 	fmt.Println(err)
 }
 func (c *Discord) SendImportant() {
-	lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
-	currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
+	for {
+		lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
+		currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
 
-	if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 && int(time.Now().Weekday()) == 4 {
-		lastReportDateMsk = currentDateMsk
-		c.session.ChannelMessageSend(ImportantChannelID, ":robot: @everyone\nНапоминаю, вы автоматически зарегистрировались через билет 95$ в турнире (кто по еженедельном ЛБ на эту ступеньку попал)\nЕсли не планируете играть именно этот турнир - отрегистрируйтесь")
+		if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 && int(time.Now().Weekday()) == 4 {
+			lastReportDateMsk = currentDateMsk
+			c.session.ChannelMessageSend(ImportantChannelID, ":robot: @everyone\nНапоминаю, вы автоматически зарегистрировались через билет 95$ в турнире (кто по еженедельном ЛБ на эту ступеньку попал)\nЕсли не планируете играть именно этот турнир - отрегистрируйтесь")
+		}
 	}
+
 }
 func (c *Discord) SendTournamentInfo(response global.CalculateTournamentResponse) string {
 	text := fmt.Sprintf(`Турнир: %d
@@ -64,4 +68,9 @@ $%d Hyper Turbo 6-max
 		return ""
 	}
 	return m.ID
+}
+
+func (c *Discord) SendStat(stat *global.MessageStat, name string) {
+	text := fmt.Sprintf("%v\nКоличество турниров: %v\nПрофит: %v\nАБИ: %v\nОбщий рой: %v\nСредний рой: %v\nОбщий рейк: %v", name, stat.NumOfTournament, stat.Profit, stat.ABI, stat.TotalROI, stat.AvgROI, stat.TotalReik)
+	c.session.ChannelMessageSend(StatChannelID, text)
 }
