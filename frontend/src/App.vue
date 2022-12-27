@@ -327,89 +327,104 @@
 
 
 
-        <div class=""
-             v-if="user_id==1">
+          <div class=""
+            v-if="user_id==1">
 
-          <div class="d-flex justify-space-between">
-            <div class="d-flex flex-column  justify-start col-5">
-              <div class="text-center mb-5">Настройка БД</div>
-              <div class="d-flex flex-column justify-space-between">
+            <div class="d-flex justify-space-between">
+                <div class="d-flex flex-column  justify-start col-5">
+                <div class="text-center mb-5">Настройка БД</div>
+                <div class="d-flex flex-column justify-space-between">
 
-                <v-btn class="mb-5 "
-                       color="success"  download="db.xlsx" :href="'/api/config?password='+(password)" >
+                    <v-btn class="mb-5 "
+                        color="success"  download="db.xlsx" :href="'/api/config?password='+(password)" >
 
-                  <v-icon left>mdi-download</v-icon>
-                  Скачать базу
-                </v-btn>
-                <v-btn class="mb-5"
-                       color="primary" v-on:click="chooseFiles()">
-                  <v-icon left>mdi-file</v-icon>
-                  {{dataFile===null?"Выбрать файл":"Выбрать другой файл"}}
-                </v-btn>
-                <v-btn class="mb-5"
-                       color="primary" v-on:click="sendFile()"
-                       v-if="dataFile!==null">
-                  <v-icon left>mdi-upload</v-icon>
-                  Отправить {{getUploadingFilesLabel()}}
-                </v-btn>
-                <input style="display:none" v-on:change="filesPicked" id="fileinput" type="file" accept=".xlsx"/>
+                    <v-icon left>mdi-download</v-icon>
+                    Скачать базу
+                    </v-btn>
+                    <v-btn class="mb-5"
+                        color="primary" v-on:click="chooseFiles()">
+                    <v-icon left>mdi-file</v-icon>
+                    {{dataFile===null?"Выбрать файл":"Выбрать другой файл"}}
+                    </v-btn>
+                    <v-btn class="mb-5"
+                        color="primary" v-on:click="sendFile()"
+                        v-if="dataFile!==null">
+                    <v-icon left>mdi-upload</v-icon>
+                    Отправить {{getUploadingFilesLabel()}}
+                    </v-btn>
+                    <input style="display:none" v-on:change="filesPicked" id="fileinput" type="file" accept=".xlsx"/>
 
-              </div>
-            </div>
+                </div>
 
-            <div class=" d-flex flex-column justify-start col-5">
-              <div class="text-center mb-5">Список неизвестных имен</div>
-              <div class=" d-flex flex-column justify-space-between ">
-
-                <v-btn
-                    class="mb-5"
-                    color="success"  download="unknownNames.xlsx" :href="'/api/unknownNames?password='+(password)">
-
-                  <v-icon left>mdi-download</v-icon>
-                  Скачать список
-                </v-btn>
-
-
-                <v-btn
-                    color="error"  >
-
-                  <v-icon left>mdi-cancel</v-icon>
-                  Очистить
-
-
-
-                  <v-dialog
-                      v-model="dialogAccept"
-                      activator="parent"
-                  >
-                    <v-card>
-                      <v-card-title class="text-h5">
-                        Вы уверены?
-                      </v-card-title>
-                      <v-card-text></v-card-text>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                            color="green darken-1"
-                            text
-                            @click="dialogAccept = false"
-                        >
-                          Нет
+                <div class="d-flex flex-column align-start mt-5"
+                v-if="analysis === Analysis.PLAYER">
+                    <div class="bot-state mb-4">
+                        <v-icon>
+                            {{botState.icon}}
+                        </v-icon>
+                        {{botState.state}}
+                        </div>
+                        <v-btn color="primary"
+                        @click="restartSystem">
+                            <v-icon>mdi-reload</v-icon>
+                            Перезагрузить систему
                         </v-btn>
-                        <v-btn
-                            v-on:click="clearUnknownNames()"
-                            color="green darken-1"
-                            text
-                            @click="dialogAccept = false"
-                        >
-                          Да
-                        </v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                </v-btn>
+                    </div>
+                </div>
 
-              </div>
+                <div class=" d-flex flex-column justify-start col-5">
+                <div class="text-center mb-5">Список неизвестных имен</div>
+                <div class=" d-flex flex-column justify-space-between ">
+
+                    <v-btn
+                        class="mb-5"
+                        color="success"  download="unknownNames.xlsx" :href="'/api/unknownNames?password='+(password)">
+
+                    <v-icon left>mdi-download</v-icon>
+                    Скачать список
+                    </v-btn>
+
+
+                    <v-btn
+                        color="error"  >
+
+                    <v-icon left>mdi-cancel</v-icon>
+                    Очистить
+
+
+
+                    <v-dialog
+                        v-model="dialogAccept"
+                        activator="parent"
+                    >
+                        <v-card>
+                        <v-card-title class="text-h5">
+                            Вы уверены?
+                        </v-card-title>
+                        <v-card-text></v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn
+                                color="green darken-1"
+                                text
+                                @click="dialogAccept = false"
+                            >
+                            Нет
+                            </v-btn>
+                            <v-btn
+                                v-on:click="clearUnknownNames()"
+                                color="green darken-1"
+                                text
+                                @click="dialogAccept = false"
+                            >
+                            Да
+                            </v-btn>
+                        </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                    </v-btn>
+
+                </div>
             </div>
           </div>
 
@@ -476,6 +491,10 @@ export default {
     Analysis,
     user_id:UserID.UNKNOWN,
     password: '',
+    botState: {
+      state: 'Состояние бота',
+      icon: 'mdi-android'
+    },
     dataFile:null,
 
     isAlertVisible: false,
@@ -549,9 +568,40 @@ export default {
     this.endMonth=this.itemsMonth[cdate.getMonth()]
     this.endYear=cdate.getFullYear()
 
+    this.getBotState()
+    window.setInterval( () => {
+      this.getBotState()
+    }, 10000)
   },
 
   methods: {
+    async restartSystem() {
+      const response = await fetch(`${ import.meta.env.VITE_VUE_APP_SERVER }restart`) 
+      if (response.status === 200) {
+          return
+      } else {
+          this.customAlert('Ошибка')
+      }
+    },
+    async getBotState() {
+      const response = await fetch(`${ import.meta.env.VITE_VUE_APP_SERVER }state`)    
+      if (response.status === 200) {
+        const data = response.json()
+        if (data.isPlayerCalculateRunning === true) {
+          this.botState = {
+            state: 'Идёт подсчёт',
+            icon: 'mdi-progress-clock'
+          }
+        } else {
+            this.botState = {
+            state: 'Бот готов',
+            icon: 'mdi-android'
+          }
+        }
+      } else {
+        this.customAlert('Ошибка')
+      }
+    },
     validateDay(day) {
       let n = `${day}`
       if(n.length >= 2) {
@@ -940,6 +990,11 @@ export default {
 </script>
 
 <style>
+.bot-state{
+  border-radius: 5px;
+  background-color: #4caf50;
+  padding: 6px 12px;
+}
 td{
   width:33%;
 }
