@@ -12,7 +12,11 @@ import (
 var ImportantChannelID string = ``
 var StatChannelID string = ``
 var channelID string = `1051584641158631424`
-var token string = config.Cfg.Token
+var token string = ""
+
+func SetToken() {
+	token = config.Cfg.Token
+}
 
 type Discord struct {
 	session *discordgo.Session

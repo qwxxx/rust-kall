@@ -19,7 +19,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("config new failed: %v", err)
 	}
-	// fmt.Println(sharkscope.GetInfo())
+
+	sharkscope.Inizializate()
+	sharkscope.Inizializate()
+
 	d := store.NewStore()
 	ds, err := discord.Create()
 	if err != nil {

@@ -17,9 +17,15 @@ type TournamentInfo struct {
 	Stake   float64
 }
 
-var appname string = config.Cfg.AppName
-var password string = config.Cfg.Password
-var appkey string = config.Cfg.AppKey
+var appname string = ""
+var password string = ""
+var appkey string = ""
+
+func Inizializate() {
+	appname = config.Cfg.AppName
+	password = config.Cfg.Password
+	appkey = config.Cfg.AppKey
+}
 
 func request(url string) ([]byte, error) {
 
