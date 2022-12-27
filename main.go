@@ -20,7 +20,7 @@ func main() {
 		log.Fatalf("config new failed: %v", err)
 	}
 
-	sharkscope.Inizializate()
+	discord.setToken()
 	sharkscope.Inizializate()
 
 	d := store.NewStore()
@@ -32,6 +32,9 @@ func main() {
 		DB: d,
 		DS: &ds,
 	}
+
+ 
+
 	d.GetScore("", false, 0)
 	d.UpdateScores()
 
