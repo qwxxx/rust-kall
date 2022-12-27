@@ -576,7 +576,7 @@ export default {
 
   methods: {
     async restartSystem() {
-      const response = await fetch(`${ import.meta.env.VITE_VUE_APP_SERVER }restart`) 
+      const response = await fetch(`${ import.meta.env.VITE_VUE_APP_SERVER }api/restart`) 
       if (response.status === 200) {
           return
       } else {
@@ -584,7 +584,7 @@ export default {
       }
     },
     async getBotState() {
-      const response = await fetch(`${ import.meta.env.VITE_VUE_APP_SERVER }state`)    
+      const response = await fetch(`${ import.meta.env.VITE_VUE_APP_SERVER }api/state`)    
       if (response.status === 200) {
         const data = response.json()
         if (data.isPlayerCalculateRunning === true) {
