@@ -70,3 +70,29 @@ type PlayerGamesRes struct {
 		} `json:"PlayerResponse"`
 	} `json:"Response"`
 }
+
+type Stat struct {
+	Response struct {
+		PlayerResponse struct {
+			PlayerView struct {
+				PlayerGroup struct {
+					Statistics struct {
+						Statistic []struct {
+							Id  string `json:"@id"`
+							Num string `json:"$"`
+						} `json:"Statistic"`
+					} `json:"Statistics"`
+				} `json:"PlayerGroup"`
+			} `json:"PlayerView"`
+		} `json:"PlayerResponse"`
+	} `json:"Response"`
+}
+
+type MessageStat struct {
+	NumOfTournament int
+	Profit          float64
+	ABI             float64
+	TotalROI        float64
+	AvgROI          float64
+	TotalReik       float64
+}

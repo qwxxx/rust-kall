@@ -358,3 +358,6 @@ func (h *API) Restart(c *gin.Context) {
 	location := url.URL{Path: "/"}
 	c.Redirect(http.StatusFound, location.RequestURI())
 }
+func (h *API) State(c *gin.Context) {
+	c.JSON(200, map[string]interface{}{"isPlayerCalculateRunning": h.isPlayerCalculateRunning})
+}
