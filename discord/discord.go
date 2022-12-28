@@ -51,8 +51,8 @@ func (c *Discord) SendReplyWithUpdated(messageID string, response global.Calcula
 	fmt.Println(err)
 }
 func (c *Discord) SendImportant() {
-	for {
-		lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
+	lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
+	for range time.Tick(time.Minute * 1) {
 		currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
 
 		if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 && int(time.Now().Weekday()) == 4 {

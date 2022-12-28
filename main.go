@@ -20,7 +20,7 @@ func main() {
 		log.Fatalf("config new failed: %v", err)
 	}
 
-	discord.setToken()
+	discord.SetToken()
 	sharkscope.Inizializate()
 
 	d := store.NewStore()
@@ -32,8 +32,6 @@ func main() {
 		DB: d,
 		DS: &ds,
 	}
-
- 
 
 	d.GetScore("", false, 0)
 	d.UpdateScores()
@@ -68,9 +66,9 @@ func main() {
 
 	go ds.SendImportant()
 	go func() {
-		for {
+		lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
+		for range time.Tick(time.Minute * 1) {
 
-			lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
 			currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
 
 			if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 {
