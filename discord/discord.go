@@ -11,7 +11,7 @@ import (
 
 var ImportantChannelID string = ``
 var StatChannelID string = ``
-var channelID string = `1051584641158631424`
+var channelID string = ``
 var token string = ""
 
 func SetToken() {
@@ -38,9 +38,9 @@ func (c *Discord) SendReplyWithUpdated(messageID string, response global.Calcula
 	text := fmt.Sprintf("Итоговая оценка турнира %v: %d\n\n", response.Id, response.TotalScore)
 	for i, v := range response.Players {
 		if i == 0 || i == 1 {
-			text += fmt.Sprintf("Место %v (ITM) - Player: %s\n", i+1, v.Name)
+			text += fmt.Sprintf("Место %v (ITM) - %s\n", i+1, v.Name)
 		} else {
-			text += fmt.Sprintf("Место %v - Player: %s\n", i+1, v.Name)
+			text += fmt.Sprintf("Место %v - %s\n", i+1, v.Name)
 		}
 	}
 	m, err := c.session.MessageThreadStart(channelID, messageID, "Турнир закончен", 0)

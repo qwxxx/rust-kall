@@ -3,6 +3,7 @@ package main
 import (
 	"SharkScopeParser/config"
 	"SharkScopeParser/discord"
+	"SharkScopeParser/global"
 	"SharkScopeParser/rest"
 	"SharkScopeParser/sharkscope"
 	"SharkScopeParser/store"
@@ -72,16 +73,19 @@ func main() {
 			currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
 
 			if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 {
-				s, _ := sharkscope.GetInfo()
+
 				_, _, day := time.Now().Date()
 				if day == 1 {
 					lastReportDateMsk = currentDateMsk
+					s, _ := sharkscope.GetInfo(global.Month)
 					ds.SendStat(s, "Месячный отчет")
 				} else if int(currentDateMsk.Weekday()) == 6 {
 					lastReportDateMsk = currentDateMsk
+					s, _ := sharkscope.GetInfo(global.Week)
 					ds.SendStat(s, "Недельный отчет")
 				} else {
 					lastReportDateMsk = currentDateMsk
+					s, _ := sharkscope.GetInfo(global.Day)
 					ds.SendStat(s, "Дневной отчет")
 				}
 
@@ -90,5 +94,7 @@ func main() {
 
 	}()
 	go h.AutoFindActiveTournaments()
+	h.DS.SendTest()
+
 	e.Run(":8081")
 }

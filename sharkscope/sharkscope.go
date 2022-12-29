@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type TournamentInfo struct {
@@ -209,8 +210,23 @@ func TournamentList(tournamentId string, network string) (TournamentInfo, error)
 
 }
 
-func GetInfo() (*global.MessageStat, error) {
-	js, err := request(`https://www.sharkscope.com/api/andreiiann/networks/Player%20Group/players/Edge%203%25?filter=Class:SNG&Currency=USD`)
+func GetInfo(period global.ReportPeriod) (*global.MessageStat, error) {
+	fromDate := int64(0)
+	toDate := time.Now().Unix()
+	switch period {
+	case global.Day:
+		fromDate = time.Now().Add(-time.Hour * 24).Unix()
+		break
+	case global.Week:
+		fromDate = time.Now().Add(-time.Hour * 24 * 7).Unix()
+		break
+	case global.Month:
+		fromDate = time.Now().Add(-time.Hour * 24 * 30).Unix() //TODO february and 30/31 days
+		break
+	}
+	fmt.Println(fromDate)
+	fmt.Println(toDate)
+	js, err := request(`https://www.sharkscope.com/api/andreiiann/networks/Player%20Group/players/Edge%203%25?filter=Entrants:5~*;Date:` + fmt.Sprint(fromDate) + `~` + fmt.Sprint(toDate) + `;Class:SNG&Currency=USD`)
 	if err != nil {
 		return nil, err
 	}

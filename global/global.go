@@ -5,6 +5,14 @@ var AdminPassword = `12345g`
 
 var UnknownName = "<UNKNOWN>"
 
+type ReportPeriod int64
+
+const (
+	Day   ReportPeriod = 0
+	Week               = 1
+	Month              = 2
+)
+
 type CalculateTournamentResponsePlayer struct {
 	Name    string `json:"name"`
 	Score   int    `json:"score"`
