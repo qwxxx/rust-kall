@@ -250,7 +250,7 @@ func GetInfo(period global.ReportPeriod) (*global.MessageStat, error) {
 		case "AvROI":
 			res.AvgROI, _ = strconv.ParseFloat(m.Num, 64)
 		case "Rake":
-			res.Profit, _ = strconv.ParseFloat(m.Num, 64)
+			res.TotalReik, _ = strconv.ParseFloat(m.Num, 64)
 
 		}
 	}
