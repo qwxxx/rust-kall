@@ -79,15 +79,16 @@ func main() {
 					lastReportDateMsk = currentDateMsk
 					s, _ := sharkscope.GetInfo(global.Month)
 					ds.SendStat(s, "Месячный отчет")
-				} else if int(currentDateMsk.Weekday()) == 6 {
+				}
+				if int(currentDateMsk.Weekday()) == 6 {
 					lastReportDateMsk = currentDateMsk
 					s, _ := sharkscope.GetInfo(global.Week)
 					ds.SendStat(s, "Недельный отчет")
-				} else {
-					lastReportDateMsk = currentDateMsk
-					s, _ := sharkscope.GetInfo(global.Day)
-					ds.SendStat(s, "Дневной отчет")
 				}
+
+				lastReportDateMsk = currentDateMsk
+				s, _ := sharkscope.GetInfo(global.Day)
+				ds.SendStat(s, "Дневной отчет")
 
 			}
 		}
