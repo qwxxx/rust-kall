@@ -69,6 +69,16 @@ func AutoFindActiveTournaments(ds discord.Discord, DB *store.Store) {
 	discordEndTournaments := make([]DiscordEndTournament, 0)
 	for {
 		newTournamentIds := sharkscope.GetActiveTournemants()
+		oldTornamentsIds := newTournamentIds
+
+		go func(DB *store.Store, ds discord.Discord) {
+			ticker := time.NewTicker(10 * time.Minute)
+			select {
+			case <-ticker.C:
+				find(oldTornamentsIds, newTournamentIds, DB, ds)
+			}
+		}(DB, ds)
+
 		if len(newTournamentIds) == 0 {
 			mode = slowMode
 		} else {
@@ -128,6 +138,22 @@ func AutoFindActiveTournaments(ds discord.Discord, DB *store.Store) {
 		case fastMode:
 			time.Sleep(time.Second * 20)
 			break
+		}
+	}
+}
+
+func find(old, new []string, DB *store.Store, ds discord.Discord) {
+	for _, oldId := range old {
+		for _, newId := range new {
+			if oldId == newId {
+				calculated, err := rest.CalculateTournamentRaw("WPN", newId, DB)
+				if err != nil || (calculated.TotalScore < 8 && calculated.PlayersCount != 6) {
+					continue
+				}
+				if calculated.PlayersCount != 6 && calculated.TotalScore >= 9 {
+					ds.SendTournamentInfo(calculated)
+				}
+			}
 		}
 	}
 }
