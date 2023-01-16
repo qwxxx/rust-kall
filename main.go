@@ -2,13 +2,10 @@ package main
 
 import (
 	"SharkScopeParser/config"
-	"SharkScopeParser/discord"
-	"SharkScopeParser/global"
 	"SharkScopeParser/rest"
 	"SharkScopeParser/sharkscope"
 	"SharkScopeParser/store"
 	"log"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,17 +18,11 @@ func main() {
 		log.Fatalf("config new failed: %v", err)
 	}
 
-	discord.SetToken()
 	sharkscope.Inizializate()
 
 	d := store.NewStore()
-	ds, err := discord.Create()
-	if err != nil {
-		log.Fatalln(err)
-	}
 	h := rest.API{
 		DB: d,
-		DS: &ds,
 	}
 
 	d.GetScore("", false, 0)
@@ -64,37 +55,6 @@ func main() {
 	e.Static("/js", "./frontend/dist/js")
 	e.Static("/assets", "./frontend/dist/assets")
 	e.Static("/files", "./files")
-
-	go ds.SendImportant()
-	go func() {
-		lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
-		for range time.Tick(time.Minute * 1) {
-
-			currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
-
-			if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 {
-
-				_, _, day := time.Now().Date()
-				if day == 1 {
-					lastReportDateMsk = currentDateMsk
-					s, _ := sharkscope.GetInfo(global.Month)
-					ds.SendStat(s, "Месячный отчет")
-				} else if int(currentDateMsk.Weekday()) == 6 {
-					lastReportDateMsk = currentDateMsk
-					s, _ := sharkscope.GetInfo(global.Week)
-					ds.SendStat(s, "Недельный отчет")
-				} else {
-					lastReportDateMsk = currentDateMsk
-					s, _ := sharkscope.GetInfo(global.Day)
-					ds.SendStat(s, "Дневной отчет")
-				}
-
-			}
-		}
-
-	}()
-	go h.AutoFindActiveTournaments()
-	h.DS.SendTest()
 
 	e.Run(":8081")
 }

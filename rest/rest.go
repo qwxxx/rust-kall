@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"SharkScopeParser/discord"
 	"SharkScopeParser/global"
 	"SharkScopeParser/sharkscope"
 	"SharkScopeParser/store"
@@ -13,14 +12,12 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type API struct {
 	DB                       *store.Store
-	DS                       *discord.Discord
 	isPlayerCalculateRunning bool
 }
 
@@ -31,134 +28,6 @@ func (h *API) ClearUnknownNames(c *gin.Context) {
 	c.Status(200)
 }
 
-func (h *API) AutoFindActiveTournaments() {
-	type FindMode int
-	const (
-		slowMode FindMode = iota
-		fastMode
-	)
-	tournamentIds := []string{}
-	sentTournamentIds := map[string]string{}
-	mode := fastMode
-	lastReportDateMsk := time.Now().UTC().Add(time.Hour * 3)
-	type DiscordEndTournament struct {
-		MessageId  string
-		Calculated global.CalculateTournamentResponse
-	}
-	discordEndTournaments := make([]DiscordEndTournament, 0)
-	for {
-		newTournamentIds := sharkscope.GetActiveTournemants()
-		if len(newTournamentIds) == 0 {
-			mode = slowMode
-		} else {
-			mode = fastMode
-		}
-		tempTournamentIds := make([]string, 0)
-		for _, new_id := range newTournamentIds {
-			isRlyNew := true
-			for _, old_id := range tournamentIds {
-				if old_id == new_id {
-					isRlyNew = false
-					break
-				}
-			}
-			if isRlyNew {
-				calculated, err := h.CalculateTournamentRaw("WPN", new_id)
-				if err != nil || (calculated.TotalScore < 8 && calculated.PlayersCount != 6) {
-					continue
-				}
-				if calculated.PlayersCount != 6 && calculated.TotalScore >= 9 {
-					mid := h.DS.SendTournamentInfo(calculated)
-					sentTournamentIds[strconv.FormatInt(calculated.Id, 10)] = mid
-				}
-			}
-			tempTournamentIds = append(tempTournamentIds, new_id)
-		}
-		for _, old_id := range tournamentIds {
-			isStayed := false
-			for _, new_id := range newTournamentIds {
-				if old_id == new_id {
-					isStayed = true
-					break
-				}
-			}
-			if dsMessageId, ok := sentTournamentIds[old_id]; ok && !isStayed {
-				calculated, err := h.CalculateTournamentRaw("WPN", old_id)
-				if err != nil || calculated.PlayersCount < 6 {
-					continue
-				}
-				discordEndTournaments = append(discordEndTournaments, DiscordEndTournament{MessageId: dsMessageId, Calculated: calculated})
-				delete(sentTournamentIds, old_id)
-			}
-		}
-		currentDateMsk := time.Now().UTC().Add(time.Hour * 3)
-		if currentDateMsk.Day() != lastReportDateMsk.Day() && currentDateMsk.Hour() >= 13 {
-			lastReportDateMsk = currentDateMsk
-			for _, tournament := range discordEndTournaments {
-				h.DS.SendReplyWithUpdated(tournament.MessageId, tournament.Calculated)
-			}
-			discordEndTournaments = make([]DiscordEndTournament, 0)
-		}
-		tournamentIds = tempTournamentIds
-		switch mode {
-		case slowMode:
-			time.Sleep(time.Minute * 2)
-			break
-		case fastMode:
-			time.Sleep(time.Second * 20)
-			break
-		}
-	}
-}
-func (h *API) CalculateTournamentRaw(network string, tournamentId string) (global.CalculateTournamentResponse, error) {
-	res := global.CalculateTournamentResponse{}
-	tournamentInfo, err := sharkscope.TournamentList(tournamentId, network)
-	if err != nil {
-		return res, err
-	}
-
-	sum := 0
-
-	for _, n := range tournamentInfo.Players {
-		pl := global.CalculateTournamentResponsePlayer{}
-		pl.Name = n.Name
-		if n.Blocked {
-			pl.Blocked = true
-			if n.Name == global.UnknownName {
-				pl.Score = 0
-				pl.Name = ""
-			} else {
-				pl.Score = h.DB.UnknownPlusLocked
-			}
-		}
-
-		switch pl.Name {
-		case global.UnknownName:
-			pl.Blocked = true
-			pl.Score = 0
-			pl.Name = ""
-			pl.Unknown = false
-		default:
-			pl.Score = h.DB.GetScore(n.Name, pl.Blocked, tournamentInfo.Stake)
-			pl.Unknown = !h.DB.IsKnownPlayer(n.Name)
-		}
-		sum += pl.Score
-		res.Players = append(res.Players, pl)
-	}
-
-	for i := len(tournamentInfo.Players) + 1; i <= 6; i++ {
-		pl := global.CalculateTournamentResponsePlayer{}
-		pl.Name = fmt.Sprintf("%d место", i)
-		pl.Score = h.DB.PlaceScores[i-1]
-		sum += pl.Score
-		res.Players = append(res.Players, pl)
-	}
-	res.Id, _ = strconv.ParseInt(tournamentId, 10, 64)
-	res.TotalScore = sum
-	res.Stake = tournamentInfo.Stake
-	res.PlayersCount = len(tournamentInfo.Players)
-	return res, nil
-}
 func (h *API) CalculatePlayer(c *gin.Context) {
 	password := c.Query("password")
 	if password != global.AdminPassword {
@@ -201,7 +70,7 @@ func (h *API) CalculatePlayer(c *gin.Context) {
 		}
 		sumscore := 0
 		for _, tournamentId := range tournamentIds {
-			s, err := h.CalculateTournamentRaw(network, tournamentId)
+			s, err := CalculateTournamentRaw(network, tournamentId, h.DB)
 			if err != nil {
 				continue
 			}
@@ -223,10 +92,61 @@ func (h *API) CalculatePlayer(c *gin.Context) {
 	h.isPlayerCalculateRunning = false
 	c.JSON(200, res)
 }
+
+func CalculateTournamentRaw(network string, tournamentId string, DB *store.Store) (global.CalculateTournamentResponse, error) {
+	res := global.CalculateTournamentResponse{}
+	tournamentInfo, err := sharkscope.TournamentList(tournamentId, network)
+	if err != nil {
+		return res, err
+	}
+
+	sum := 0
+
+	for _, n := range tournamentInfo.Players {
+		pl := global.CalculateTournamentResponsePlayer{}
+		pl.Name = n.Name
+		if n.Blocked {
+			pl.Blocked = true
+			if n.Name == global.UnknownName {
+				pl.Score = 0
+				pl.Name = ""
+			} else {
+				pl.Score = DB.UnknownPlusLocked
+			}
+		}
+
+		switch pl.Name {
+		case global.UnknownName:
+			pl.Blocked = true
+			pl.Score = 0
+			pl.Name = ""
+			pl.Unknown = false
+		default:
+			pl.Score = DB.GetScore(n.Name, pl.Blocked, tournamentInfo.Stake)
+			pl.Unknown = !DB.IsKnownPlayer(n.Name)
+		}
+		sum += pl.Score
+		res.Players = append(res.Players, pl)
+	}
+
+	for i := len(tournamentInfo.Players) + 1; i <= 6; i++ {
+		pl := global.CalculateTournamentResponsePlayer{}
+		pl.Name = fmt.Sprintf("%d место", i)
+		pl.Score = DB.PlaceScores[i-1]
+		sum += pl.Score
+		res.Players = append(res.Players, pl)
+	}
+	res.Id, _ = strconv.ParseInt(tournamentId, 10, 64)
+	res.TotalScore = sum
+	res.Stake = tournamentInfo.Stake
+	res.PlayersCount = len(tournamentInfo.Players)
+	return res, nil
+}
+
 func (h *API) CalculateTournament(c *gin.Context) {
 	network := c.Query("network")
 	tournamentId := c.Query("tournament_id")
-	res, err := h.CalculateTournamentRaw(network, tournamentId)
+	res, err := CalculateTournamentRaw(network, tournamentId, h.DB)
 	if err != nil {
 		if "Tournament not found" == err.Error() {
 			c.AbortWithError(404, err)
