@@ -20,12 +20,11 @@ func main() {
 
 	sharkscope.Inizializate()
 
-	d := store.NewStore()
+	d, err := store.NewStore(config.Cfg.SqlConn, "./migrations")
 	h := rest.API{
 		DB: d,
 	}
 
-	d.GetScore("", false, 0)
 	d.UpdateScores()
 
 	e := gin.Default()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"SharkScopeParser/config"
 	"SharkScopeParser/discord"
 	"SharkScopeParser/global"
 	"SharkScopeParser/rest"
@@ -12,7 +13,17 @@ import (
 )
 
 func main() {
-	d := store.NewStore()
+	var err error
+	config.Cfg, err = config.New()
+	if err != nil {
+		log.Fatalf("config new failed: %v", err)
+	}
+
+	sharkscope.Inizializate()
+	d, err := store.NewStore(config.Cfg.SqlConn, "./migrations")
+	if err != nil {
+		log.Fatal(err)
+	}
 	ds, err := discord.Create()
 	if err != nil {
 		log.Fatalln(err)
@@ -52,7 +63,7 @@ func main() {
 	ds.SendTest()
 }
 
-func AutoFindActiveTournaments(ds discord.Discord, DB *store.Store) {
+func AutoFindActiveTournaments(ds discord.Discord, DB store.Storage) {
 	type FindMode int
 	const (
 		slowMode FindMode = iota
@@ -71,7 +82,7 @@ func AutoFindActiveTournaments(ds discord.Discord, DB *store.Store) {
 		newTournamentIds := sharkscope.GetActiveTournemants()
 		oldTornamentsIds := newTournamentIds
 
-		go func(DB *store.Store, ds discord.Discord) {
+		go func(DB store.Storage, ds discord.Discord) {
 			ticker := time.NewTicker(10 * time.Minute)
 			select {
 			case <-ticker.C:
@@ -142,7 +153,7 @@ func AutoFindActiveTournaments(ds discord.Discord, DB *store.Store) {
 	}
 }
 
-func find(old, new []string, DB *store.Store, ds discord.Discord) {
+func find(old, new []string, DB store.Storage, ds discord.Discord) {
 	for _, oldId := range old {
 		for _, newId := range new {
 			if oldId == newId {

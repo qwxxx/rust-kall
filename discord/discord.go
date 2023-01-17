@@ -38,9 +38,9 @@ func (c *Discord) SendReplyWithUpdated(messageID string, response global.Calcula
 	text := fmt.Sprintf("Итоговая оценка турнира %v: %d\n\n", response.Id, response.TotalScore)
 	for i, v := range response.Players {
 		if i == 0 || i == 1 {
-			text += fmt.Sprintf("Место %v (ITM) - %s\n", i+1, v.Name)
+			text += fmt.Sprintf("Место %v (ITM) - %s %d\n", i+1, v.Name, v.Score)
 		} else {
-			text += fmt.Sprintf("Место %v - %s\n", i+1, v.Name)
+			text += fmt.Sprintf("Место %v - %s %d\n", i+1, v.Name, v.Score)
 		}
 	}
 	m, err := c.session.MessageThreadStart(channelID, messageID, "Турнир закончен", 0)

@@ -17,12 +17,12 @@ import (
 )
 
 type API struct {
-	DB                       *store.Store
+	DB                       store.Storage
 	isPlayerCalculateRunning bool
 }
 
 func (h *API) ClearUnknownNames(c *gin.Context) {
-	h.DB.UnknownNames = map[string]bool{}
+	h.DB.SetUnknownNames(map[string]bool{})
 	os.Remove("out.xlsx")
 	h.DB.GetScore("", false, 0)
 	c.Status(200)
@@ -93,7 +93,7 @@ func (h *API) CalculatePlayer(c *gin.Context) {
 	c.JSON(200, res)
 }
 
-func CalculateTournamentRaw(network string, tournamentId string, DB *store.Store) (global.CalculateTournamentResponse, error) {
+func CalculateTournamentRaw(network string, tournamentId string, DB store.Storage) (global.CalculateTournamentResponse, error) {
 	res := global.CalculateTournamentResponse{}
 	tournamentInfo, err := sharkscope.TournamentList(tournamentId, network)
 	if err != nil {
@@ -111,7 +111,7 @@ func CalculateTournamentRaw(network string, tournamentId string, DB *store.Store
 				pl.Score = 0
 				pl.Name = ""
 			} else {
-				pl.Score = DB.UnknownPlusLocked
+				pl.Score = DB.GetOtherScores().UnknownPlusLocked
 			}
 		}
 
@@ -132,7 +132,7 @@ func CalculateTournamentRaw(network string, tournamentId string, DB *store.Store
 	for i := len(tournamentInfo.Players) + 1; i <= 6; i++ {
 		pl := global.CalculateTournamentResponsePlayer{}
 		pl.Name = fmt.Sprintf("%d место", i)
-		pl.Score = DB.PlaceScores[i-1]
+		pl.Score = DB.GetPlaceScores()[i-1]
 		sum += pl.Score
 		res.Players = append(res.Players, pl)
 	}

@@ -12,6 +12,7 @@ type Config struct {
 	AppName  string `yaml:"appname"`
 	Password string `yaml:"password"`
 	AppKey   string `yaml:"appkey"`
+	SqlConn  string `yaml:"sql_conn"`
 }
 
 var Cfg *Config
