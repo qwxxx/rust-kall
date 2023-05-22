@@ -14,8 +14,8 @@ async fn init_program()->Result<config::Config>{
     let config:config::Config= serde_yaml::from_reader(f)?;
 
     Ok(config)
-
 }
+
 #[tokio::main]
 async fn main() -> Result<()> {
     
