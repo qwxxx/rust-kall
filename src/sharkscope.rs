@@ -26,7 +26,7 @@ impl SharkScope {
     }
 
     fn url(&self) -> String {
-        format!("https://www.sharkscope.com/api/{}/networks/WPN/activeTournaments?Filter=Entrants:1~*;Stake:USD10~250;Type:ST,6MX;Class:SNG", self.appname)
+        format!("https://www.sharkscope.com/api/{}/networks/WPN/activeTournaments?Filter=Entrants:1~*;Stake:USD10~*;Type:ST,6MX;Class:SNG", self.appname)
     }
 
     fn headers(&self) -> reqwest::header::HeaderMap {
@@ -61,7 +61,7 @@ impl SharkScope {
             }
         } else if tournaments.is_object() {
             if let Some(id) = tournaments["@id"].as_str() {
-                if tournaments["@currentEntrants"] == "5" {
+                if tournaments["@currentEntrants"] == "5"||true {
                     tournaments_ids.push(String::from(id));
                 }
                 

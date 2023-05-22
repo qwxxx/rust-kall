@@ -7,7 +7,7 @@ mod sharkscope;
 
 async fn init_program()->Result<config::Config>{
     dotenv::dotenv().ok();
-    let filter=tracing_subscriber::EnvFilter::from_env("RUST_LOG");
+    let filter=tracing_subscriber::EnvFilter::from_env("RUST_LOG_DISABLE_CRATES");
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
     let f = std::fs::File::open("config.yaml")?;
@@ -32,17 +32,14 @@ async fn main() -> Result<()> {
         let (tournaments, all_tournaments_count) = shark_scope.get_tournaments().await?;
         let date = chrono::offset::Utc::now();
         
-        println!("{:?}/{}", tournaments, all_tournaments_count);
+        tracing::info!("{:?}/{}", tournaments, all_tournaments_count);
         for tournament in tournaments {
-            if let Err(_)=sqlx::query("select * from five_tournaments where tournament_id=$1")
-            .bind(&tournament).execute(&db).await{
                 let result = sqlx::query("insert into five_tournaments (tournament_id, date) values ($1, $2)")
                 .bind(&tournament)
                 .bind(&date)
                 .execute(&db)
                 .await;
                 tracing::info!("{:?}",result);
-            }
         }
 
         if all_tournaments_count == 0 {
