@@ -1,0 +1,25 @@
+[package]
+name = "sharkscope_notify"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dotenv="0.15.0"
+serde = { version = "1.0.163", features=["derive"] }
+serde_json = "1.0.96"
+serde_yaml="0.9.21"
+tokio = { version = "1.28.1", features = ["full"] }
+sqlx={version="0.6.3",features=["runtime-tokio-rustls","postgres","json","chrono"]}
+chrono = "0.4.24"
+reqwest = { version = "0.11", features = ["json"] }
+md5 = "0.7.0"
+hex = "0.4.3"
+anyhow = "1.0.71"
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+
+[[bin]]
+name = "sharkscope_notify"
+path = "src/main.rs"
