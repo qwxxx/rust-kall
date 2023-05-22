@@ -1,7 +1,0 @@
-sharkscope:
-  username: test
-  password: test
-  appname: test
-  appkey: test
-
-db_conn: postgresql://postgres@localhost:5432/sharkscope

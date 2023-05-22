@@ -4,6 +4,7 @@ use serde_json::Value;
 use md5;
 use hex;
 use anyhow::Result;
+
 pub struct SharkScope {
     appname: String,
     username: String,
@@ -18,8 +19,8 @@ impl SharkScope {
         let hash = format!("{:?}", md5::compute(format!("{}{}", password_hash, config.appkey)));
 
         SharkScope {
-            appname:config.appname,
-            username:config.username,
+            appname: config.appname,
+            username: config.username,
             hash,
             user_agent: String::from("npm-sharkscope")
         }
@@ -47,26 +48,22 @@ impl SharkScope {
         let mut tournaments_ids: Vec<String> = Vec::new();
         let mut tournaments_count: u8 = 0;
 
-        if tournaments.is_array() {
-            if let Some(tournaments) = tournaments.as_array() {
-                for tournament in tournaments {
-                    if let Some(id) = tournament["@id"].as_str() {
-                        if tournament["@currentEntrants"] == "5" {
-                            tournaments_ids.push(String::from(id));
-                        }
-
-                        tournaments_count += 1;
+        if let Some(tournaments) = tournaments.as_array() {
+            for tournament in tournaments {
+                if let Some(id) = tournament["@id"].as_str() {
+                    if tournament["@currentEntrants"] == "5" {
+                        tournaments_ids.push(String::from(id));
                     }
+
+                    tournaments_count += 1;
                 }
             }
-        } else if tournaments.is_object() {
-            if let Some(id) = tournaments["@id"].as_str() {
-                if tournaments["@currentEntrants"] == "5"||true {
-                    tournaments_ids.push(String::from(id));
-                }
-                
-                tournaments_count = 1;
+        } else if let Some(id) = tournaments["@id"].as_str(){
+            if tournaments["@currentEntrants"] == "5" {
+                tournaments_ids.push(String::from(id));
             }
+            
+            tournaments_count = 1;
         }
         
         Ok((tournaments_ids, tournaments_count))
